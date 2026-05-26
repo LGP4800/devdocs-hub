@@ -1,0 +1,47 @@
+from flask import Blueprint, jsonify, request
+from . import db
+from .models import Snippet
+
+api = Blueprint('api', __name__)
+
+# Health check — folosit de Docker si CI/CD
+@api.route('/health')
+def health():
+    return jsonify({'status': 'ok'}), 200
+
+# GET toate snippeturile
+@api.route('/snippets', methods=['GET'])
+def get_snippets():
+    snippets = Snippet.query.order_by(Snippet.created_at.desc()).all()
+    return jsonify([s.to_dict() for s in snippets]), 200
+
+# GET un snippet dupa ID
+@api.route('/snippets/<int:id>', methods=['GET'])
+def get_snippet(id):
+    snippet = Snippet.query.get_or_404(id)
+    return jsonify(snippet.to_dict()), 200
+
+# POST snippet nou
+@api.route('/snippets', methods=['POST'])
+def create_snippet():
+    data = request.get_json()
+    if not data or not data.get('title') or not data.get('content'):
+        return jsonify({'error': 'title and content are required'}), 400
+
+    snippet = Snippet(
+        title    = data['title'],
+        content  = data['content'],
+        language = data.get('language', 'text'),
+        tags     = ','.join(data.get('tags', [])),
+    )
+    db.session.add(snippet)
+    db.session.commit()
+    return jsonify(snippet.to_dict()), 201
+
+# DELETE snippet
+@api.route('/snippets/<int:id>', methods=['DELETE'])
+def delete_snippet(id):
+    snippet = Snippet.query.get_or_404(id)
+    db.session.delete(snippet)
+    db.session.commit()
+    return jsonify({'message': 'deleted'}), 200
