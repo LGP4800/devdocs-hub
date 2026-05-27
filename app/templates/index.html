@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevDocs Hub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
+    header h1 { font-size: 1.25rem; }
+    .badge { background: #16213e; padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #e0e0e0; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #666; }
+    input, textarea, select { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    textarea { height: 100px; resize: vertical; font-family: monospace; }
+    button { background: #1a1a2e; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    button:hover { background: #16213e; }
+    .snippet { background: white; border-radius: 8px; padding: 1.25rem; margin-bottom: 0.75rem; border: 1px solid #e0e0e0; }
+    .snippet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .snippet-title { font-weight: 500; font-size: 15px; }
+    .snippet-lang { background: #e8f4fd; color: #1565c0; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+    .snippet-content { font-family: monospace; font-size: 13px; background: #f8f8f8; padding: 10px; border-radius: 4px; white-space: pre-wrap; }
+    .snippet-tags { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag { background: #f0f0f0; padding: 2px 8px; border-radius: 12px; font-size: 12px; color: #555; }
+    .delete-btn { background: none; color: #e53e3e; border: 1px solid #e53e3e; padding: 4px 10px; font-size: 12px; border-radius: 4px; }
+    .delete-btn:hover { background: #fff5f5; }
+    .status { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #48bb78; }
+    .dot.error { background: #e53e3e; }
+    #empty { text-align: center; color: #999; padding: 2rem; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>DevDocs Hub</h1>
+    <div style="margin-left:auto" class="status">
+      <div class="dot" id="status-dot"></div>
+      <span id="status-text">checking...</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="title" placeholder="Ex: Flask route decorator">
+      </div>
+      <div class="form-group">
+        <label>Language</label>
+        <select id="language">
+          <option>python</option>
+          <option>javascript</option>
+          <option>bash</option>
+          <option>sql</option>
+          <option>text</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Content</label>
+        <textarea id="content" placeholder="Codul sau nota ta..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Tags (separate prin virgulă)</label>
+        <input type="text" id="tags" placeholder="Ex: flask, api, python">
+      </div>
+      <button onclick="createSnippet()">Adaugă snippet</button>
+    </div>
+
+    <div id="snippets-list"></div>
+  </div>
+
+  <script>
+    const API = '/api';
+
+    async function checkHealth() {
+      try {
+        const r = await fetch(`${API}/health`);
+        const d = await r.json();
+        document.getElementById('status-dot').className = 'dot' + (d.status === 'ok' ? '' : ' error');
+        document.getElementById('status-text').textContent = d.status === 'ok' ? 'API online' : 'API degraded';
+      } catch {
+        document.getElementById('status-dot').className = 'dot error';
+        document.getElementById('status-text').textContent = 'API offline';
+      }
+    }
+
+    async function loadSnippets() {
+      const r = await fetch(`${API}/snippets`);
+      const snippets = await r.json();
+      const list = document.getElementById('snippets-list');
+      if (snippets.length === 0) {
+        list.innerHTML = '<div id="empty">Niciun snippet încă. Adaugă primul!</div>';
+        return;
+      }
+      list.innerHTML = snippets.map(s => `
+        <div class="snippet">
+          <div class="snippet-header">
+            <span class="snippet-title">${s.title}</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="snippet-lang">${s.language}</span>
+              <button class="delete-btn" onclick="deleteSnippet(${s.id})">delete</button>
+            </div>
+          </div>
+          <div class="snippet-content">${s.content}</div>
+          ${s.tags.length ? `<div class="snippet-tags">${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function createSnippet() {
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value.trim();
+      if (!title || !content) return alert('Title și content sunt obligatorii!');
+
+      await fetch(`${API}/snippets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          content,
+          language: document.getElementById('language').value,
+          tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(Boolean)
+        })
+      });
+
+      document.getElementById('title').value = '';
+      document.getElementById('content').value = '';
+      document.getElementById('tags').value = '';
+      loadSnippets();
+    }
+
+    async function deleteSnippet(id) {
+      await fetch(`${API}/snippets/${id}`, { method: 'DELETE' });
+      loadSnippets();
+    }
+
+    checkHealth();
+    loadSnippets();
+    setInterval(checkHealth, 30000);
+  </script>
+</body>
+</html>

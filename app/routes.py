@@ -1,13 +1,28 @@
 from flask import Blueprint, jsonify, request
-from . import db
+from . import db, logger
 from .models import Snippet
+import datetime
 
 api = Blueprint('api', __name__)
 
 # Health check — folosit de Docker si CI/CD
 @api.route('/health')
 def health():
-    return jsonify({'status': 'ok'}), 200
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        db_status = 'ok'
+    except Exception as e:
+        logger.error(f'Database health check failed: {e}')
+        db_status = 'error'
+
+    status = 'ok' if db_status == 'ok' else 'degraded'
+    logger.info(f'Health check: {status}')
+
+    return jsonify({
+        'status':    status,
+        'database':  db_status,
+        'timestamp': datetime.datetime.utcnow().isoformat()
+    }), 200 if status == 'ok' else 503
 
 # GET toate snippeturile
 @api.route('/snippets', methods=['GET'])
