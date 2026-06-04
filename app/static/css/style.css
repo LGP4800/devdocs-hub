@@ -1,0 +1,188 @@
+/* ─── RESET ─────────────────────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── BASE ───────────────────────────────────────────────────────────────────── */
+body {
+  font-family: system-ui, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────────────────────────── */
+header {
+  background: #1a1a2e;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+header h1 {
+  font-size: 1.25rem;
+}
+
+.badge {
+  background: #16213e;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-left: auto;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #48bb78;
+}
+
+.dot.error {
+  background: #e53e3e;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────────────── */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* ─── CARD ───────────────────────────────────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+/* ─── FORM ───────────────────────────────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #666;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+textarea {
+  height: 100px;
+  resize: vertical;
+  font-family: monospace;
+}
+
+button {
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #16213e;
+}
+
+/* ─── SNIPPET ────────────────────────────────────────────────────────────────── */
+.snippet {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid #e0e0e0;
+}
+
+.snippet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.snippet-title {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.snippet-lang {
+  background: #e8f4fd;
+  color: #1565c0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.snippet-content {
+  font-family: monospace;
+  font-size: 13px;
+  background: #f8f8f8;
+  padding: 10px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+.snippet-tags {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #555;
+}
+
+/* ─── DELETE BUTTON ──────────────────────────────────────────────────────────── */
+.delete-btn {
+  background: none;
+  color: #e53e3e;
+  border: 1px solid #e53e3e;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.delete-btn:hover {
+  background: #fff5f5;
+}
+
+/* ─── EMPTY STATE ────────────────────────────────────────────────────────────── */
+#empty {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 14px;
+}
